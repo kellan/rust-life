@@ -16,7 +16,7 @@ struct Board {
     map: Vec<Vec<Cell>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 enum Cell {
     Dead,
     Live(i8),
@@ -36,33 +36,24 @@ impl Board {
         board
     }
 
-    // fn insert_cell(&mut self, hw: Point) {
-    //     self.map.insert(hw, Cell::new());
-    // }
+    fn revive(&mut self, hw: Point) {
+        self.map[hw.0 as usize][hw.1 as usize] = Cell::Live(0);
+    }
 
-    // fn living_neighbors(&self, hw: Point) -> Vec<&Cell> {
-    //     let points = self.neighbor_points(hw);
-    //     let mut cells = Vec::<&Cell>::new();
-    //     for p in points {
-    //         if let Some(cell) = self.map.get(&p) {
-    //             cells.push(cell);
-    //         }
-    //     }
+    fn at(&self, hw: &Point) -> Cell {
+        self.map[hw.0 as usize][hw.1 as usize]
+    }
 
-    //     cells
-    // }
+    fn living_neighbors(&self, hw: Point) -> u8 {
+        let mut living_count = 0;
+        for p in self.neighbor_points(hw) {
+            if let Cell::Live(_) = self.at(&p) {
+                living_count += 1;
+            }
+        }
 
-    // // fn neighbor_cells(&self, hw: Point) -> Vec<&Cell> {
-    // //     let points = self.neighbor_points(hw);
-    // //     let mut cells = Vec::<&Cell>::new();
-    // //     for p in points {
-    // //         if self.map.contains_key(&p) {
-    // //             cells.push(self.map.get(&p).unwrap());
-    // //         }
-    // //     }
-
-    // //     cells
-    // // }
+        living_count
+    }
 
     fn neighbor_points(&self, hw: Point) -> Vec<Point> {
         let mut neighbors = Vec::<Point>::new();
@@ -108,15 +99,21 @@ mod tests {
         assert!(!cells.contains(&Point(1, 2)));
     }
 
-    // #[test]
-    // fn cell_tests() {
-    //     let mut board = Board::new(3, 3);
-    //     let living = board.living_neighbors(Point(0, 0));
-    //     assert_eq!(living.len(), 0);
-    //     board.insert_cell(Point(0, 1));
-    //     let cell = board.map.get(&Point(0, 1));
-    //     assert!(cell.is_some());
-    //     let living = board.living_neighbors(Point(0, 0));
-    //     assert_eq!(living.len(), 1);
-    // }
+    #[test]
+    fn cell_tests() {
+        let mut board = Board::new(3, 3);
+        board.revive(Point(0, 0));
+        assert!(matches!(board.map[0][0], Cell::Live(_)));
+        assert!(!matches!(board.map[0][1], Cell::Live(_)));
+        assert!(matches!(board.map[0][1], Cell::Dead));
+
+        assert_eq!(board.living_neighbors(Point(0, 0)), 0);
+        assert_eq!(board.living_neighbors(Point(0, 1)), 1);
+        board.revive(Point(0, 0));
+        assert_eq!(board.living_neighbors(Point(0, 1)), 1);
+        board.revive(Point(0, 1));
+        assert_eq!(board.living_neighbors(Point(0, 1)), 1);
+        board.revive(Point(1, 1));
+        assert_eq!(board.living_neighbors(Point(0, 1)), 2);
+    }
 }
