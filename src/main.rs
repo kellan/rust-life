@@ -1,14 +1,4 @@
-const DIRECTIONS: [(i8, i8); 8] = [
-    (-1, -1),
-    (-1, 0),
-    (-1, 1),
-    (0, -1),
-    (0, 1),
-    (1, -1),
-    (1, 0),
-    (1, 1),
-];
-
+// most logic lives on board
 #[derive(Debug)]
 struct Board {
     height: u8,
@@ -22,6 +12,7 @@ enum Cell {
     Live(u8),
 }
 
+// I probably don't need this and should just use a tuple
 #[derive(PartialEq, Eq, Hash, Debug)]
 struct Point(i8, i8);
 
@@ -42,6 +33,7 @@ impl Board {
         board
     }
 
+    // flip a cell to alive
     fn revive(&mut self, hw: Point) {
         self.map[hw.0 as usize][hw.1 as usize] = Cell::Live(0);
     }
@@ -106,6 +98,17 @@ impl Board {
         let mut neighbors = Vec::<Point>::new();
         let height = self.height as i8;
         let width = self.width as i8;
+
+        const DIRECTIONS: [(i8, i8); 8] = [
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+        ];
 
         for delta in DIRECTIONS {
             let dh = hw.0 - delta.0;
