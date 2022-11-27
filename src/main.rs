@@ -49,7 +49,7 @@ impl Board {
         execute!(
             io::stdout(),
             EnterAlternateScreen,
-            SetForegroundColor(Color::Magenta),
+            SetForegroundColor(Color::Blue),
             Hide
         )?;
 
@@ -77,6 +77,12 @@ impl Board {
     // flip a cell to alive
     fn revive(&mut self, hw: Point) {
         self.map[hw.0 as usize][hw.1 as usize] = Cell::Live(0);
+    }
+
+    fn revive_cells(&mut self, cells: &[(i8, i8)]) {
+        for (i, j) in cells.iter() {
+            self.revive(Point(*i, *j));
+        }
     }
 
     fn at(&self, hw: &Point) -> Cell {
@@ -183,12 +189,11 @@ impl fmt::Display for Board {
 
 fn main() {
     println!("Hello, world!");
-    let mut board = Board::new(3, 3);
-    board.revive(Point(0, 0));
-    board.revive(Point(1, 1));
-    board.revive(Point(2, 0));
-    board.revive(Point(2, 2));
-    board.animate();
+    let mut board = Board::new(10, 10);
+    board.revive_cells(&[(0, 2)]);
+    board.revive_cells(&[(1, 3)]);
+    board.revive_cells(&[(2, 1), (2, 2), (2, 3)]);
+    let result = board.animate();
 
     // board.step();
     // board.step();
