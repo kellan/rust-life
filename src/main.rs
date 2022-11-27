@@ -1,3 +1,5 @@
+use std::fmt;
+
 // most logic lives on board
 #[derive(Debug)]
 struct Board {
@@ -123,6 +125,23 @@ impl Board {
     }
 }
 
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for i in 0..self.height {
+            for j in 0..self.width {
+                let symbol = match self.at(&&Point::from_u8(i, j)) {
+                    Cell::Dead(_) => '◻',
+                    Cell::Live(_) => '◼',
+                };
+
+                write!(f, "{}", symbol)?;
+            }
+            write!(f, "\n")?;
+        }
+        Ok(())
+    }
+}
+
 fn main() {
     println!("Hello, world!");
     let mut board = Board::new(3, 3);
@@ -134,7 +153,7 @@ fn main() {
     board.step();
     board.step();
 
-    dbg!(board);
+    print!("{}", board);
 }
 
 #[cfg(test)]
