@@ -175,8 +175,8 @@ impl fmt::Display for Board {
         for i in 0..self.height {
             for j in 0..self.width {
                 let symbol = match self.at(&&Point::from_u8(i, j)) {
-                    Cell::Dead(_) => '◻',
-                    Cell::Live(_) => '◼',
+                    Cell::Dead(_) => ' ',
+                    Cell::Live(_) => '🦀',
                 };
 
                 write!(f, "{}", symbol)?;
