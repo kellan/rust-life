@@ -1,4 +1,14 @@
+use crossterm::{
+    cursor::{Hide, MoveTo, Show},
+    event::{poll, read, Event},
+    execute,
+    style::{Color, Print, ResetColor, SetForegroundColor},
+    terminal::{Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
+    Result,
+};
 use std::fmt;
+use std::io;
+use std::time::Duration;
 
 // most logic lives on board
 #[derive(Debug)]
@@ -33,6 +43,35 @@ impl Board {
         };
 
         board
+    }
+
+    fn animate(&mut self) -> Result<()> {
+        execute!(
+            io::stdout(),
+            EnterAlternateScreen,
+            SetForegroundColor(Color::Magenta),
+            Hide
+        )?;
+
+        loop {
+            if poll(Duration::from_millis(500))? {
+                match read()? {
+                    Event::Key(_) => break,
+                    _ => {}
+                }
+            } else {
+                execute!(
+                    io::stdout(),
+                    Clear(ClearType::All),
+                    MoveTo(0, 0),
+                    Print(&self),
+                    Print("Press enter to exit...")
+                )?;
+                self.step();
+            }
+        }
+        execute!(io::stdout(), ResetColor, Show, LeaveAlternateScreen)?;
+        Ok(())
     }
 
     // flip a cell to alive
@@ -149,11 +188,12 @@ fn main() {
     board.revive(Point(1, 1));
     board.revive(Point(2, 0));
     board.revive(Point(2, 2));
+    board.animate();
 
-    board.step();
-    board.step();
+    // board.step();
+    // board.step();
 
-    print!("{}", board);
+    //   print!("{}", board);
 }
 
 #[cfg(test)]
